@@ -10,7 +10,15 @@ export class TrackService {
   constructor(private readonly repository: RepositoryService) {}
 
   create(createTrackDto: CreateTrackDto) {
-    const track = new Track({ ...createTrackDto, id: v4() });
+    const isArtistExist = this.repository.artists.find(
+      (el) => el.id === createTrackDto.artistId,
+    );
+
+    const track = new Track({
+      ...createTrackDto,
+      id: v4(),
+      artistId: isArtistExist ? createTrackDto.artistId : null,
+    });
     this.repository.tracks.push(track);
     return track;
   }
@@ -31,7 +39,7 @@ export class TrackService {
       ...record,
       ...updateTrackDto,
     });
-    return this.repository.updateTrack(updatedRecord);
+    return this.repository.updateTrack(id, updatedRecord);
   }
 
   remove(id: string) {
