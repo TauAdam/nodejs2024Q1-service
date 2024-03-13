@@ -13,14 +13,14 @@ import { User } from 'src/user/entities/user.entity';
 export class UserService {
   constructor(private readonly repository: RepositoryService) {}
   create({ login, password }: CreateUserDto) {
-    const user: User = {
+    const user = new User({
       login,
       password,
       id: v4(),
       version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    };
+    });
     this.repository.users.push(user);
     return user;
   }
@@ -36,17 +36,16 @@ export class UserService {
   }
 
   update(id: string, { newPassword, oldPassword }: UpdateUserDto) {
-    let record = this.findOne(id);
+    const record = this.findOne(id);
     if (record.password !== oldPassword)
       throw new ForbiddenException('old password is wrong');
-    const user: User = {
+    const updatedRecord = new User({
       ...record,
       version: record.version + 1,
       updatedAt: Date.now(),
       password: newPassword,
-    };
-    record = user;
-    return record;
+    });
+    return this.repository.update(updatedRecord);
   }
 
   remove(id: string) {
