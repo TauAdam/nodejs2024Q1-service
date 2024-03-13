@@ -31,7 +31,7 @@ export class UserService {
 
   findOne(id: string) {
     const record = this.repository.users.find((user) => user.id === id);
-    if (!record) throw new NotFoundException(`User with ${id} doesn't exist`);
+    if (!record) throw new NotFoundException(`This user doesn't exist`);
     return record;
   }
 
@@ -45,13 +45,13 @@ export class UserService {
       updatedAt: Date.now(),
       password: newPassword,
     });
-    return this.repository.update(updatedRecord);
+    return this.repository.updateUser(updatedRecord);
   }
 
   remove(id: string) {
     const index = this.repository.users.findIndex((user) => user.id === id);
     if (index === -1) {
-      throw new NotFoundException(`User with ${id} doesn't exist`);
+      throw new NotFoundException(`This user doesn't exist`);
     }
     this.repository.users.splice(index, 1);
     return;
