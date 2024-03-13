@@ -8,12 +8,11 @@ import {
   HttpCode,
   Header,
   Put,
-  BadRequestException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { validate } from 'uuid';
 
 @Controller('user')
 export class UserController {
@@ -35,23 +34,23 @@ export class UserController {
   @Get(':id')
   @HttpCode(200)
   @Header('Accept', 'application/json')
-  findOne(@Param('id') id: string) {
-    if (!validate(id)) throw new BadRequestException('Invalid UUID');
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.findOne(id);
   }
 
   @Put(':id')
   @HttpCode(200)
   @Header('Accept', 'application/json')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    if (!validate(id)) throw new BadRequestException('Invalid UUID');
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
-    if (!validate(id)) throw new BadRequestException('Invalid UUID');
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.remove(id);
   }
 }
