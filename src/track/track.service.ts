@@ -13,10 +13,14 @@ export class TrackService {
     const isArtistExist = this.repository.artists.find(
       (el) => el.id === createTrackDto.artistId,
     );
+    const isAlbumExist = this.repository.albums.find(
+      (el) => el.id === createTrackDto.artistId,
+    );
 
     const track = new Track({
       ...createTrackDto,
       id: v4(),
+      albumId: isAlbumExist ? createTrackDto.albumId : null,
       artistId: isArtistExist ? createTrackDto.artistId : null,
     });
     this.repository.tracks.push(track);

@@ -45,6 +45,11 @@ export class ArtistService {
         el.artistId = null;
       }
     });
+    this.repository.albums.forEach((el) => {
+      if (el.artistId === id) {
+        el.artistId = null;
+      }
+    });
     return;
   }
 }

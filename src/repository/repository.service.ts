@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Album } from 'src/album/entities/album.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 import { Track } from 'src/track/entities/track.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -8,6 +9,7 @@ export class RepositoryService {
   public users: User[] = [];
   public tracks: Track[] = [];
   public artists: Artist[] = [];
+  public albums: Album[] = [];
   updateUser(updatedRecord: User) {
     const index = this.users.findIndex((u) => u.id === updatedRecord.id);
     if (index === -1) {
@@ -22,6 +24,10 @@ export class RepositoryService {
   }
   updateArtist(index: string, updatedRecord: Artist) {
     this.artists[index] = updatedRecord;
+    return updatedRecord;
+  }
+  updateAlbum(index: string, updatedRecord: Album) {
+    this.albums[index] = updatedRecord;
     return updatedRecord;
   }
 }
