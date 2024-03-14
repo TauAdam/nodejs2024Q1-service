@@ -31,25 +31,11 @@ export class ArtistService {
       ...record,
       ...updateArtistDto,
     });
-    return this.repository.updateArtist(id, updatedRecord);
+    return this.repository.updateEntity('artists', id, updatedRecord);
   }
 
   remove(id: string) {
-    const index = this.repository.artists.findIndex((el) => el.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`This artist doesn't exist`);
-    }
-    this.repository.artists.splice(index, 1);
-    this.repository.tracks.forEach((el) => {
-      if (el.artistId === id) {
-        el.artistId = null;
-      }
-    });
-    this.repository.albums.forEach((el) => {
-      if (el.artistId === id) {
-        el.artistId = null;
-      }
-    });
-    return;
+    this.repository.removeElement('artists', id);
+    this.repository.clearArtistReferences(id);
   }
 }

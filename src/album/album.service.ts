@@ -31,15 +31,10 @@ export class AlbumService {
       ...record,
       ...updateAlbumDto,
     });
-    return this.repository.updateAlbum(id, updatedRecord);
+    return this.repository.updateEntity('albums', id, updatedRecord);
   }
 
   remove(id: string) {
-    const index = this.repository.albums.findIndex((el) => el.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`This album doesn't exist`);
-    }
-    this.repository.albums.splice(index, 1);
-    return;
+    this.repository.removeElement('albums', id);
   }
 }

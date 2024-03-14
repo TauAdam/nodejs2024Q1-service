@@ -10,11 +10,13 @@ export class TrackService {
   constructor(private readonly repository: RepositoryService) {}
 
   create(createTrackDto: CreateTrackDto) {
-    const isArtistExist = this.repository.artists.find(
-      (el) => el.id === createTrackDto.artistId,
+    const isArtistExist = this.repository.isEntityExist(
+      'artists',
+      createTrackDto.artistId,
     );
-    const isAlbumExist = this.repository.albums.find(
-      (el) => el.id === createTrackDto.artistId,
+    const isAlbumExist = this.repository.isEntityExist(
+      'albums',
+      createTrackDto.albumId,
     );
 
     const track = new Track({
@@ -43,15 +45,10 @@ export class TrackService {
       ...record,
       ...updateTrackDto,
     });
-    return this.repository.updateTrack(id, updatedRecord);
+    return this.repository.updateEntity('tracks', id, updatedRecord);
   }
 
   remove(id: string) {
-    const index = this.repository.tracks.findIndex((el) => el.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`This track doesn't exist`);
-    }
-    this.repository.tracks.splice(index, 1);
-    return;
+    this.repository.removeElement('tracks', id);
   }
 }

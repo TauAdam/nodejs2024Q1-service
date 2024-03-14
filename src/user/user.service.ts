@@ -49,11 +49,6 @@ export class UserService {
   }
 
   remove(id: string) {
-    const index = this.repository.users.findIndex((user) => user.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`This user doesn't exist`);
-    }
-    this.repository.users.splice(index, 1);
-    return;
+    this.repository.removeElement('users', id);
   }
 }
