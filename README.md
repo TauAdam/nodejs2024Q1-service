@@ -10,6 +10,22 @@
 ```
 git clone {repository URL}
 ```
+## Switching to the project directory
+
+```
+cd nodejs2024Q1-service
+```
+
+## Switching to the task branch
+
+```
+git checkout part-1
+```
+
+## Creating .env file
+
+Create .env file in the root of the project and add variables from .env.example file.
+(You can copy .env.example file and rename it to .env)
 
 ## Installing NPM modules
 
@@ -22,6 +38,8 @@ npm install
 ```
 npm start
 ```
+
+## Using the application
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
