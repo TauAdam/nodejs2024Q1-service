@@ -36,6 +36,7 @@ export class ArtistService {
 
   remove(id: string) {
     this.repository.removeElement('artists', id);
+    this.repository.favorites.remove('artists', id);
     this.repository.clearArtistReferences(id);
   }
 }

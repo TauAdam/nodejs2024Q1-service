@@ -1,41 +1,47 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { RepositoryService } from 'src/repository/repository.service';
-import { Favorites } from 'src/favorites/entities/favorite.entity';
+import { FavoritesCategory } from 'src/favorites/entities/favorite.entity';
 
 @Injectable()
 export class FavoritesService {
   constructor(private readonly repository: RepositoryService) {}
 
-  create(collectionType: keyof Favorites, id: string) {
-    if (this.repository.isEntityExist(collectionType, id)) {
-      throw new NotFoundException(
+  add(collectionType: keyof FavoritesCategory, id: string) {
+    const res = this.repository.hasEntity(collectionType, id);
+    if (!res) {
+      throw new UnprocessableEntityException(
         `This ${collectionType.slice(0, -1)} doesn't exist`,
       );
     }
-    this.repository.favorites[collectionType].push(id);
+    return this.repository.favorites.add(collectionType, id);
   }
 
   findAll() {
-    const favoritesIdx = this.repository.favorites;
-    return {
+    const { artists, albums, tracks } = this.repository.favorites;
+    const result = {
       artists: this.repository.artists.filter((artist) =>
-        favoritesIdx.artists.includes(artist.id),
+        artists.includes(artist.id),
       ),
       albums: this.repository.albums.filter((album) =>
-        favoritesIdx.albums.includes(album.id),
+        albums.includes(album.id),
       ),
       tracks: this.repository.tracks.filter((track) =>
-        favoritesIdx.tracks.includes(track.id),
+        tracks.includes(track.id),
       ),
     };
+    return result;
   }
 
-  remove(collectionType: keyof Favorites, id: string) {
-    if (!this.repository.favorites[collectionType].includes(id)) {
+  remove(collectionType: keyof FavoritesCategory, id: string) {
+    if (!this.repository.favorites.has(collectionType, id)) {
       throw new NotFoundException(
         `This ${collectionType.slice(0, -1)} doesn't exist in favorites`,
       );
     }
-    this.repository.removeFavorite(collectionType, id);
+    this.repository.favorites.remove(collectionType, id);
   }
 }

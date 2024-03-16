@@ -38,7 +38,7 @@ export class UserService {
   update(id: string, { newPassword, oldPassword }: UpdateUserDto) {
     const record = this.findOne(id);
     if (record.password !== oldPassword)
-      throw new ForbiddenException('old password is wrong');
+      throw new ForbiddenException('Wrong password');
     const updatedRecord = new User({
       ...record,
       version: record.version + 1,

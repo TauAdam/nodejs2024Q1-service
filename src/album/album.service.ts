@@ -10,7 +10,7 @@ export class AlbumService {
   constructor(private readonly repository: RepositoryService) {}
 
   create(createAlbumDto: CreateAlbumDto) {
-    const album = new Album({ ...createAlbumDto, id: v4(), artistId: null });
+    const album = new Album({ ...createAlbumDto, id: v4() });
     this.repository.albums.push(album);
     return album;
   }
@@ -36,6 +36,7 @@ export class AlbumService {
 
   remove(id: string) {
     this.repository.removeElement('albums', id);
+    this.repository.favorites.remove('albums', id);
     this.repository.clearAlbumReferences(id);
   }
 }

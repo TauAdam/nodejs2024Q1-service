@@ -12,7 +12,7 @@ export class RepositoryService {
   public tracks: Track[] = [];
   public artists: Artist[] = [];
   public albums: Album[] = [];
-  public favorites: Favorites = { tracks: [], albums: [], artists: [] };
+  public favorites = new Favorites();
 
   findOne(collectionType: RepositoryResources, id: string) {
     const record = this[collectionType].find((el) => el.id === id);
@@ -39,7 +39,6 @@ export class RepositoryService {
     this[collectionType][index] = updatedRecord;
     return updatedRecord;
   }
-
   removeElement<T extends User & Track & Album & Artist>(
     collectionType: RepositoryResources,
     id: string,
@@ -51,17 +50,6 @@ export class RepositoryService {
       );
     }
     this[collectionType].splice(index, 1);
-  }
-  removeFavorite(collectionType: keyof Favorites, id: string) {
-    this.favorites[collectionType] = this.favorites[collectionType].filter(
-      (idx) => idx !== id,
-    );
-  }
-  isEntityExist<T extends User & Track & Album & Artist>(
-    collectionType: RepositoryResources,
-    id: string,
-  ) {
-    return this[collectionType].some((el: T) => el.id === id);
   }
   clearArtistReferences(id: string): void {
     this.clearReferencesFromCollection<Track>(this.tracks, 'artistId', id);
@@ -80,5 +68,14 @@ export class RepositoryService {
         el[property] = null;
       }
     });
+  }
+  getAlbumId(albumId: string): string | null {
+    return this.albums.find((el) => el.id === albumId)?.id ?? null;
+  }
+  getArtistId(artistId: string): string | null {
+    return this.artists.find((el) => el.id === artistId)?.id ?? null;
+  }
+  hasEntity(collectionType: RepositoryResources, id: string) {
+    return this[collectionType].find((el) => el.id === id);
   }
 }

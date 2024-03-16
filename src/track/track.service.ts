@@ -10,20 +10,11 @@ export class TrackService {
   constructor(private readonly repository: RepositoryService) {}
 
   create(createTrackDto: CreateTrackDto) {
-    const isArtistExist = this.repository.isEntityExist(
-      'artists',
-      createTrackDto.artistId,
-    );
-    const isAlbumExist = this.repository.isEntityExist(
-      'albums',
-      createTrackDto.albumId,
-    );
-
     const track = new Track({
       ...createTrackDto,
       id: v4(),
-      albumId: isAlbumExist ? createTrackDto.albumId : null,
-      artistId: isArtistExist ? createTrackDto.artistId : null,
+      albumId: this.repository.getAlbumId(createTrackDto.albumId),
+      artistId: this.repository.getArtistId(createTrackDto.artistId),
     });
     this.repository.tracks.push(track);
     return track;
@@ -50,5 +41,6 @@ export class TrackService {
 
   remove(id: string) {
     this.repository.removeElement('tracks', id);
+    this.repository.favorites.remove('tracks', id);
   }
 }
