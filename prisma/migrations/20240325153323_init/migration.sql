@@ -42,7 +42,7 @@ CREATE TABLE "Track" (
 
 -- CreateTable
 CREATE TABLE "Favorites" (
-    "id" TEXT NOT NULL,
+    "id" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Favorites_pkey" PRIMARY KEY ("id")
 );
@@ -50,20 +50,35 @@ CREATE TABLE "Favorites" (
 -- CreateTable
 CREATE TABLE "_ArtistToFavorites" (
     "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+    "B" INTEGER NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "_AlbumToFavorites" (
     "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+    "B" INTEGER NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "_FavoritesToTrack" (
-    "A" TEXT NOT NULL,
+    "A" INTEGER NOT NULL,
     "B" TEXT NOT NULL
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Artist_id_key" ON "Artist"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Album_id_key" ON "Album"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Track_id_key" ON "Track"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Favorites_id_key" ON "Favorites"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ArtistToFavorites_AB_unique" ON "_ArtistToFavorites"("A", "B");

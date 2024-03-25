@@ -4,7 +4,6 @@ EXPOSE 4000
 
 FROM base AS dev
 COPY package.json package-lock.json ./
-COPY ./prisma ./prisma
-RUN npm ci && npx prisma generate && npm cache clean --force
+RUN npm ci && npm cache clean --force
 COPY . .
-CMD npm run start:dev
+CMD npx prisma migrate deploy && npx prisma generate && npm run start:dev

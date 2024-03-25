@@ -4,12 +4,16 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
+import { ConfigService } from '@nestjs/config';
 
 const swaggerRoute = 'doc';
-const port = process.env.PORT || 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get('PORT');
+
   app.useGlobalPipes(new ValidationPipe());
 
   const file = await readFile('doc/api.yaml', { encoding: 'utf-8' });
