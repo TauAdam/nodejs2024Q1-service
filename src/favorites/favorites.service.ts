@@ -3,7 +3,6 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { Favorites } from 'src/favorites/entities/favorite.entity';
 import { PrismaService } from 'src/repository/prisma.service';
 
@@ -76,7 +75,7 @@ export class FavoritesService {
     const records = await this.prisma.favorites.findFirst({
       select: { albums: true, tracks: true, artists: true },
     });
-    return plainToInstance(Favorites, records);
+    return new Favorites(records);
   }
 
   async removeTrack(id: string) {
