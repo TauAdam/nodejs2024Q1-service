@@ -5,38 +5,47 @@
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
 
-## Downloading
+## 1) Download the project
 
 ```
 git clone {repository URL}
 ```
-## Switching to the project directory
-
 ```
 cd nodejs2024Q1-service
 ```
-
-## Switching to the task branch
-
 ```
-git checkout part-1
+git checkout docker-database
 ```
 
-## Creating .env file
+## 2) Create .env file
 
 Create .env file in the root of the project and add variables from .env.example file.
 (You can copy .env.example file and rename it to .env)
 
-## Installing NPM modules
+**Important: Set PG_USER=postgres in .env file.**
+
+## 3) Install dependencies
 
 ```
 npm install
 ```
 
-## Running application
+## 4) Docker setup
+### Note: Make sure you have Docker installed on your machine and you copied .env file to the root of the project.
 
 ```
-npm start
+npm run compose:up
+```
+
+## 5) Run tests
+
+```
+npm run test
+```
+## 6) Scan vulnerabilities
+
+```
+npm run docker:audit
 ```
 
 ## Using the application
