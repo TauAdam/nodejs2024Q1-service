@@ -5,14 +5,21 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
 import { ConfigService } from '@nestjs/config';
+import { LoggingService } from 'src/logging/logging.service';
 
 const swaggerRoute = 'doc';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
 
   const configService = app.get(ConfigService);
   const port = configService.get('PORT');
+
+  const logger = app.get(LoggingService);
+  app.useLogger(logger);
+  logger.setErrorListeners();
 
   app.useGlobalPipes(new ValidationPipe());
 

@@ -9,6 +9,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { TrackModule } from './track/track.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     FavoritesModule,
     PrismaModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggingModule,
   ],
   controllers: [AppController],
   providers: [
