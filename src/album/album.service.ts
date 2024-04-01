@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Album } from 'src/album/entities/album.entity';
-import { PrismaService } from 'src/repository/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { plainToInstance } from 'class-transformer';

@@ -8,6 +8,7 @@ import { ArtistModule } from './artist/artist.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { TrackModule } from './track/track.module';
 import { UserModule } from './user/user.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { UserModule } from './user/user.module';
     ArtistModule,
     AlbumModule,
     FavoritesModule,
-    ConfigModule.forRoot(),
+    PrismaModule,
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [

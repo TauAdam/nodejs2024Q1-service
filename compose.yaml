@@ -18,7 +18,7 @@ services:
     volumes:
       - ./src:/app/src
   db:
-    build: ./src/repository/
+    build: ./src/prisma/
     restart: always
     ports:
       - ${PG_PORT}:${PG_PORT}
