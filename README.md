@@ -14,7 +14,7 @@ git clone {repository URL}
 cd nodejs2024Q1-service
 ```
 ```
-git checkout docker-database
+git checkout logging-auth
 ```
 
 ## 2) Create .env file

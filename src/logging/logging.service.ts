@@ -65,7 +65,7 @@ export class LoggingService extends ConsoleLogger {
     const formattedEntry = `${Intl.DateTimeFormat('en-US', {
       dateStyle: 'short',
       timeStyle: 'short',
-      timeZone: 'Kazakhstan/Almaty',
+      timeZone: 'Asia/Almaty',
     }).format(new Date())}\t${entry}\t[${context}]\t${message}\n`;
 
     try {

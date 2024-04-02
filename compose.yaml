@@ -16,6 +16,7 @@ services:
       db:
         condition: service_healthy
     volumes:
+      - /app/node_modules
       - ./src:/app/src
       - ./logs:/app/logs
   db:
@@ -31,7 +32,8 @@ services:
       - home
     volumes:
       - pgdata:/var/lib/postgresql/data
-    command: ["postgres", "-c", "logging_collector=on", "-c", "log_statement=all"]
+    command:
+      ['postgres', '-c', 'logging_collector=on', '-c', 'log_statement=all']
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${PG_USER}']
       interval: 10s
