@@ -1,52 +1,49 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import path from 'path';
-import fs from 'fs';
-import { appendFile, mkdir } from 'fs/promises';
-import { LogLevel, LogLevelType } from 'src/logging/types';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as fsPromises from 'fs/promises';
+import { LOG_LEVEL_VALUES } from 'src/logging/types';
 
 @Injectable()
 export class LoggingService extends ConsoleLogger {
-  constructor(private readonly configService: ConfigService) {
-    super();
+  constructor(
+    context: string,
+    private readonly configService: ConfigService,
+  ) {
+    super(context);
+
+    const TARGET_LEVEL =
+      this.configService.get<number>('TARGET_LOG_LEVEL') || 5;
+    const enabledLogLevels = Object.keys(LOG_LEVEL_VALUES).filter(
+      (level) => LOG_LEVEL_VALUES[level] <= TARGET_LEVEL,
+    ) as LogLevel[];
+    this.setLogLevels(enabledLogLevels);
   }
-  private readonly level = this.configService.get<number>('LOGGING_LEVEL') || 5;
 
   log(message: any, context?: string) {
-    if (this.level >= LogLevel.LOG) {
-      this.writeToFile('LOG', message, context);
-      super.log(message, context);
-    }
+    this.writeToFile('log', message, context);
+    super.log(message, context);
   }
   fatal(message: any, context?: string) {
-    if (this.level >= LogLevel.FATAL) {
-      this.writeToFile('FATAL', message, context);
-      super.fatal(message, context);
-    }
+    this.writeToFile('fatal', message, context);
+    super.fatal(message, context);
   }
   error(message: any, trace?: string, context?: string) {
-    if (this.level >= LogLevel.ERROR) {
-      this.writeToFile('ERROR', message, context);
-      super.error(message, trace, context);
-    }
+    this.writeToFile('error', message, context);
+    super.error(message, trace, context);
   }
   warn(message: any, context?: string) {
-    if (this.level >= LogLevel.WARN) {
-      this.writeToFile('WARN', message, context);
-      super.warn(message, context);
-    }
+    this.writeToFile('warn', message, context);
+    super.warn(message, context);
   }
   debug(message: any, context?: string) {
-    if (this.level >= LogLevel.DEBUG) {
-      this.writeToFile('DEBUG', message, context);
-      super.debug(message, context);
-    }
+    this.writeToFile('debug', message, context);
+    super.debug(message, context);
   }
   verbose(message: any, context?: string) {
-    if (this.level >= LogLevel.VERBOSE) {
-      this.writeToFile('VERBOSE', message, context);
-      super.verbose(message, context);
-    }
+    this.writeToFile('verbose', message, context);
+    super.verbose(message, context);
   }
   setErrorListeners() {
     process.on('uncaughtException', (error) => {
@@ -61,18 +58,18 @@ export class LoggingService extends ConsoleLogger {
       process.exit(1);
     });
   }
-  async writeToFile(entry: LogLevelType, message: any, context?: string) {
+  async writeToFile(entry: LogLevel, message: any, context?: string) {
     const formattedEntry = `${Intl.DateTimeFormat('en-US', {
       dateStyle: 'short',
       timeStyle: 'short',
       timeZone: 'Asia/Almaty',
-    }).format(new Date())}\t${entry}\t[${context}]\t${message}\n`;
+    }).format(new Date())}\t${entry.toUpperCase()}\t[${context}]\t${message}\n`;
 
     try {
       if (!fs.existsSync(path.join(__dirname, '..', '..', 'logs'))) {
-        await mkdir(path.join(__dirname, '..', '..', 'logs'));
+        await fsPromises.mkdir(path.join(__dirname, '..', '..', 'logs'));
       }
-      await appendFile(
+      await fsPromises.appendFile(
         path.join(__dirname, '..', '..', 'logs', 'myLogs.log'),
         formattedEntry,
       );

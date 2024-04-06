@@ -7,9 +7,8 @@ services:
     ports:
       - ${PORT}:${PORT}
     restart: always
-    environment:
-      PORT: ${PORT}
-      DATABASE_URL: ${DATABASE_URL_DOCKER}
+    env_file:
+      - .env
     networks:
       - home
     depends_on:
