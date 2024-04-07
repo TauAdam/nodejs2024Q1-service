@@ -1,8 +1,8 @@
 import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
+import { mkdir, stat, writeFile } from 'fs/promises';
 import * as path from 'path';
-import * as fsPromises from 'fs/promises';
 import { LOG_LEVEL_VALUES } from 'src/logging/types';
 
 @Injectable()
@@ -13,42 +13,47 @@ export class LoggingService extends ConsoleLogger {
   ) {
     super(context);
 
+    this.setLogLevels(this.getEnabledLogLevels());
+    this.setErrorListeners();
+  }
+  private readonly MAX_LOG_FILE_SIZE =
+    this.configService.get<number>('MAX_LOG_SIZE') || 1024;
+  private commonQuantity = 1;
+  private errorQuantity = 1;
+  private getEnabledLogLevels() {
     const TARGET_LEVEL =
       this.configService.get<number>('TARGET_LOG_LEVEL') || 5;
-    const enabledLogLevels = Object.keys(LOG_LEVEL_VALUES).filter(
+    return Object.keys(LOG_LEVEL_VALUES).filter(
       (level) => LOG_LEVEL_VALUES[level] <= TARGET_LEVEL,
     ) as LogLevel[];
-    this.setLogLevels(enabledLogLevels);
   }
-
   log(message: any, context?: string) {
-    this.writeToFile('log', message, context);
+    this.write('log', message, context);
     super.log(message, context);
   }
   fatal(message: any, context?: string) {
-    this.writeToFile('fatal', message, context);
+    this.write('fatal', message, context);
     super.fatal(message, context);
   }
   error(message: any, trace?: string, context?: string) {
-    this.writeToFile('error', message, context);
+    this.write('error', message, context);
     super.error(message, trace, context);
   }
   warn(message: any, context?: string) {
-    this.writeToFile('warn', message, context);
+    this.write('warn', message, context);
     super.warn(message, context);
   }
   debug(message: any, context?: string) {
-    this.writeToFile('debug', message, context);
+    this.write('debug', message, context);
     super.debug(message, context);
   }
   verbose(message: any, context?: string) {
-    this.writeToFile('verbose', message, context);
+    this.write('verbose', message, context);
     super.verbose(message, context);
   }
   setErrorListeners() {
     process.on('uncaughtException', (error) => {
-      const message = error instanceof Error ? error.message : String(error);
-      this.error(message, error.stack);
+      this.error(error.message, error.stack);
       process.exit(1);
     });
 
@@ -58,21 +63,38 @@ export class LoggingService extends ConsoleLogger {
       process.exit(1);
     });
   }
-  async writeToFile(entry: LogLevel, message: any, context?: string) {
-    const formattedEntry = `${Intl.DateTimeFormat('en-US', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-      timeZone: 'Asia/Almaty',
-    }).format(new Date())}\t${entry.toUpperCase()}\t[${context}]\t${message}\n`;
+  async write(entry: LogLevel, message: any, context?: string) {
+    const formattedLogEntry = `${this.getTimestamp()}\t${entry.toUpperCase()}\t[${context}]\t${message}\n`;
 
-    try {
-      if (!fs.existsSync(path.join(__dirname, '..', '..', 'logs'))) {
-        await fsPromises.mkdir(path.join(__dirname, '..', '..', 'logs'));
-      }
-      await fsPromises.appendFile(
-        path.join(__dirname, '..', '..', 'logs', 'myLogs.log'),
-        formattedEntry,
+    if (entry === 'error') {
+      this.errorQuantity = await this.writeToFile(
+        formattedLogEntry,
+        'error',
+        this.errorQuantity,
       );
+    } else {
+      this.commonQuantity = await this.writeToFile(
+        formattedLogEntry,
+        'common',
+        this.commonQuantity,
+      );
+    }
+  }
+  async writeToFile(message: string, type: 'error' | 'common', index = 1) {
+    try {
+      const logDir = path.join(__dirname, '..', '..', 'logs');
+      if (!fs.existsSync(logDir)) await mkdir(logDir);
+      let pathToFile = path.join(logDir, `${index}_${type}.log`);
+      if (!fs.existsSync(pathToFile)) {
+        await writeFile(pathToFile, '');
+      }
+      const { size } = await stat(pathToFile);
+      if (size >= this.MAX_LOG_FILE_SIZE) {
+        index++;
+      }
+      pathToFile = path.join(logDir, `${index}_${type}.log`);
+      await writeFile(pathToFile, message, { flag: 'a' });
+      return index;
     } catch (e) {
       if (e instanceof Error) console.error(e.message);
     }

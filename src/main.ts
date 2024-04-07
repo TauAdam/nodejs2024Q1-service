@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
 import { ConfigService } from '@nestjs/config';
 import { LoggingService } from 'src/logging/logging.service';
-import { CustomExceptionFilter } from 'custom-exception-filter';
+import { HttpExceptionFilter } from 'src/custom-exception-filter';
 
 const swaggerRoute = 'doc';
 
@@ -20,10 +20,9 @@ async function bootstrap() {
 
   const logger = app.get(LoggingService);
   app.useLogger(logger);
-  logger.setErrorListeners();
 
   const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new CustomExceptionFilter(httpAdapterHost));
+  app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
 
   app.useGlobalPipes(new ValidationPipe());
 
