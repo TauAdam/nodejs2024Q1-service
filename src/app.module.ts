@@ -16,17 +16,19 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { LoggingModule } from './logging/logging.module';
 import { TrackModule } from './track/track.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
     TrackModule,
     ArtistModule,
     AlbumModule,
     FavoritesModule,
     PrismaModule,
-    ConfigModule.forRoot({ isGlobal: true }),
     LoggingModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

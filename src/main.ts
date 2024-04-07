@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
 import { ConfigService } from '@nestjs/config';
 import { LoggingService } from 'src/logging/logging.service';
-import { HttpExceptionFilter } from 'src/custom-exception-filter';
+import { HttpExceptionFilter } from 'src/http-exception-filter';
 
 const swaggerRoute = 'doc';
 
