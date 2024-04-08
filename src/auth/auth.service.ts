@@ -14,10 +14,10 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
-  private readonly SALT = this.configService.get<number>('CRYPT_SALT') || 10;
+  private readonly SALT = this.configService.get<string>('CRYPT_SALT', '10');
 
   async signup({ password, login }: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(password, this.SALT);
+    const hashedPassword = await bcrypt.hash(password, +this.SALT);
     return await this.userService.create({ login, password: hashedPassword });
   }
   async login({ password, login }: CreateUserDto) {
@@ -30,22 +30,22 @@ export class AuthService {
     return await this.generateJwt(payload);
   }
 
-  // private async generateJwt(payload: JwtPayload): Promise<Tokens> {
-  //   return {
-  //     accessToken: await this.jwtService.signAsync(payload, {
-  //       secret: this.configService.get<string>('JWT_SECRET_KEY'),
-  //       expiresIn: this.configService.get<string>('TOKEN_EXPIRE_TIME'),
-  //     }),
-  //     refreshToken: await this.jwtService.signAsync(payload, {
-  //       secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
-  //       expiresIn: this.configService.get<string>('TOKEN_REFRESH_EXPIRE_TIME'),
-  //     }),
-  //   };
-  // }
   private async generateJwt(payload: JwtPayload): Promise<Tokens> {
     return {
-      accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload),
+      accessToken: await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_SECRET_KEY'),
+        expiresIn: this.configService.get<string>('TOKEN_EXPIRE_TIME'),
+      }),
+      refreshToken: await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
+        expiresIn: this.configService.get<string>('TOKEN_REFRESH_EXPIRE_TIME'),
+      }),
     };
   }
+  // private async generateJwt(payload: JwtPayload): Promise<Tokens> {
+  //   return {
+  //     accessToken: this.jwtService.sign(payload),
+  //     refreshToken: this.jwtService.sign(payload),
+  //   };
+  // }
 }

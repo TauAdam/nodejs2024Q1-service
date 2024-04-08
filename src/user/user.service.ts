@@ -30,7 +30,7 @@ export class UserService {
   }
   async findByLogin(login: string) {
     const record = await this.prisma.user.findFirst({ where: { login } });
-    return plainToInstance(User, record);
+    return record;
   }
 
   async update(id: string, { newPassword, oldPassword }: UpdateUserDto) {
