@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -45,15 +49,16 @@ export class AuthService {
   }
 
   async refresh({ refreshToken }: CreateRefreshDto) {
+    if (!refreshToken) throw new UnauthorizedException('No token provided');
+
     try {
       await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
       });
-    } catch (error) {
+    } catch (e) {
       throw new ForbiddenException('Invalid token');
     }
     const { userId, login } = decode(refreshToken) as JwtPayload;
-    const tokens = await this.generateJwt({ userId, login });
-    return tokens;
+    return await this.generateJwt({ userId, login });
   }
 }

@@ -5,14 +5,14 @@ import { Request, Response } from 'express';
 export class LoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
   use(req: Request, res: Response, next: () => void) {
-    const { method, baseUrl } = req;
+    const { method, baseUrl, body, query } = req;
     const start = Date.now();
 
     res.on('finish', () => {
       const { statusCode } = res;
       const end = Date.now();
       const duration = end - start;
-      const logMessage = `${method} ${baseUrl} ${statusCode} ${duration}ms`;
+      const logMessage = `${method} ${baseUrl} ${JSON.stringify(query)} ${JSON.stringify(body)} -> ${statusCode} ${duration}ms`;
 
       if (statusCode >= 500) {
         this.logger.error(logMessage);

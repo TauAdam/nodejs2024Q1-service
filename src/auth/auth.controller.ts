@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  ValidationPipe,
-} from '@nestjs/common';
-import { CreateRefreshDto } from 'src/auth/dto/create-refresh.dto';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { Tokens } from 'src/auth/entity/auth.entity';
 import { Public } from 'src/auth/public.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -34,12 +26,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refresh(
-    @Body(
-      new ValidationPipe({
-        errorHttpStatusCode: HttpStatus.UNAUTHORIZED,
-      }),
-    )
-    dto: CreateRefreshDto,
+    @Body()
+    dto: {
+      refreshToken: string;
+    },
   ): Promise<Tokens> {
     return await this.authService.refresh(dto);
   }
