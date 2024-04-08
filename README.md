@@ -22,8 +22,6 @@ git checkout logging-auth
 Create .env file in the root of the project and add variables from .env.example file.
 (You can copy .env.example file and rename it to .env)
 
-**Important: Set PG_USER=postgres in .env file.**
-
 ## 3) Install dependencies
 
 ```
@@ -42,6 +40,15 @@ npm run compose:up
 ```
 npm run test
 ```
+
+```
+npm run test:auth
+```
+
+```
+npm run test:refresh
+```
+
 ## 6) Scan vulnerabilities
 
 ```
