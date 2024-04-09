@@ -36,11 +36,6 @@ npm run compose:up
 ```
 
 ## 5) Run tests
-
-```
-npm run test
-```
-
 ```
 npm run test:auth
 ```
