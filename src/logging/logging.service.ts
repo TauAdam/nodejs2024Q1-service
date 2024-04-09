@@ -14,7 +14,7 @@ export class LoggingService extends ConsoleLogger {
     super(context);
 
     this.setLogLevels(this.getEnabledLogLevels());
-    this.setErrorListeners();
+    this.handleUnexpectedErrors();
   }
   private readonly MAX_LOG_FILE_SIZE =
     this.configService.get<number>('MAX_LOG_SIZE') || 1024;
@@ -51,7 +51,7 @@ export class LoggingService extends ConsoleLogger {
     this.write('verbose', message, context);
     super.verbose(message, context);
   }
-  setErrorListeners() {
+  handleUnexpectedErrors() {
     process.on('uncaughtException', (error) => {
       this.error(error.message, error.stack);
       process.exit(1);
