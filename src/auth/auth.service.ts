@@ -3,12 +3,12 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, decode } from 'jsonwebtoken';
 import { CreateRefreshDto } from 'src/auth/dto/create-refresh.dto';
 import { Tokens } from 'src/auth/entity/auth.entity';
+import { EnvService } from 'src/env/env.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 
@@ -16,10 +16,10 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly configService: ConfigService,
+    private readonly envService: EnvService,
     private readonly jwtService: JwtService,
   ) {}
-  private readonly SALT = this.configService.get<string>('CRYPT_SALT', '10');
+  private readonly SALT = this.envService.get('CRYPT_SALT');
 
   async signup({ password, login }: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(password, +this.SALT);
@@ -38,12 +38,12 @@ export class AuthService {
   private async generateJwt(payload: JwtPayload): Promise<Tokens> {
     return {
       accessToken: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: this.configService.get<string>('TOKEN_EXPIRE_TIME'),
+        secret: this.envService.get('JWT_SECRET_KEY'),
+        expiresIn: this.envService.get('TOKEN_EXPIRE_TIME'),
       }),
       refreshToken: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
-        expiresIn: this.configService.get<string>('TOKEN_REFRESH_EXPIRE_TIME'),
+        secret: this.envService.get('JWT_SECRET_REFRESH_KEY'),
+        expiresIn: this.envService.get('TOKEN_REFRESH_EXPIRE_TIME'),
       }),
     };
   }
@@ -53,7 +53,7 @@ export class AuthService {
 
     try {
       await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
+        secret: this.envService.get('JWT_SECRET_REFRESH_KEY'),
       });
     } catch (e) {
       throw new ForbiddenException('Invalid token');

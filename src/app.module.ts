@@ -17,10 +17,15 @@ import { LoggingModule } from './logging/logging.module';
 import { TrackModule } from './track/track.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { EnvModule } from './env/env.module';
+import { envSchema } from 'src/env/env';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: (env) => envSchema.parse(env),
+    }),
     UserModule,
     TrackModule,
     ArtistModule,
@@ -29,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     LoggingModule,
     AuthModule,
+    EnvModule,
   ],
   controllers: [AppController],
   providers: [

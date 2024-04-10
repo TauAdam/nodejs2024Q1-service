@@ -1,28 +1,26 @@
 import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { mkdir, stat, writeFile } from 'fs/promises';
 import * as path from 'path';
+import { EnvService } from 'src/env/env.service';
 import { LOG_LEVEL_VALUES } from 'src/logging/types';
 
 @Injectable()
 export class LoggingService extends ConsoleLogger {
   constructor(
     context: string,
-    private readonly configService: ConfigService,
+    private readonly envService: EnvService,
   ) {
     super(context);
 
     this.setLogLevels(this.getEnabledLogLevels());
     this.handleUnexpectedErrors();
   }
-  private readonly MAX_LOG_FILE_SIZE =
-    this.configService.get<number>('MAX_LOG_SIZE') || 1024;
+  private readonly MAX_FILE_SIZE = this.envService.get('MAX_LOG_FILE_SIZE');
   private commonQuantity = 1;
   private errorQuantity = 1;
   private getEnabledLogLevels() {
-    const TARGET_LEVEL =
-      this.configService.get<number>('TARGET_LOG_LEVEL') || 5;
+    const TARGET_LEVEL = this.envService.get('TARGET_LOG_LEVEL');
     return Object.keys(LOG_LEVEL_VALUES).filter(
       (level) => LOG_LEVEL_VALUES[level] <= TARGET_LEVEL,
     ) as LogLevel[];
@@ -89,7 +87,7 @@ export class LoggingService extends ConsoleLogger {
         await writeFile(pathToFile, '');
       }
       const { size } = await stat(pathToFile);
-      if (size >= this.MAX_LOG_FILE_SIZE) {
+      if (size >= this.MAX_FILE_SIZE) {
         index++;
       }
       pathToFile = path.join(logDir, `${index}_${type}.log`);

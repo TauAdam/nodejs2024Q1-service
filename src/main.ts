@@ -1,12 +1,12 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
-import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
-import { ConfigService } from '@nestjs/config';
-import { LoggingService } from 'src/logging/logging.service';
+import { EnvService } from 'src/env/env.service';
 import { HttpExceptionFilter } from 'src/http-exception-filter';
+import { LoggingService } from 'src/logging/logging.service';
+import { parse } from 'yaml';
+import { AppModule } from './app.module';
 
 const swaggerRoute = 'doc';
 
@@ -15,7 +15,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const configService = app.get(ConfigService);
+  const configService = app.get(EnvService);
   const port = configService.get('PORT');
 
   const logger = app.get(LoggingService);
