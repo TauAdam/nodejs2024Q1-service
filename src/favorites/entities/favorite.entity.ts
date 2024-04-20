@@ -1,20 +1,13 @@
-export type FavoritesCategory = Pick<
-  Favorites,
-  'tracks' | 'artists' | 'albums'
->;
+import { Album } from 'src/album/entities/album.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
+import { Track } from 'src/track/entities/track.entity';
 
 export class Favorites {
-  tracks: string[] = [];
-  artists: string[] = [];
-  albums: string[] = [];
+  tracks: Track[] = [];
+  artists: Artist[] = [];
+  albums: Album[] = [];
 
-  add(collectionType: keyof FavoritesCategory, id: string) {
-    this[collectionType].push(id);
-  }
-  remove(collectionType: keyof FavoritesCategory, id: string) {
-    this[collectionType] = this[collectionType].filter((el) => el !== id);
-  }
-  has(collectionType: keyof FavoritesCategory, id: string) {
-    return this[collectionType].includes(id);
+  constructor(partial: Partial<Favorites>) {
+    Object.assign(this, partial);
   }
 }

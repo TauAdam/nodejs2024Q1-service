@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${TARGET}
+    ports:
+      - ${PORT}:${PORT}
+    restart: always
+    environment:
+      PORT: ${PORT}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+    networks:
+      - home
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+  db:
+    build: ./src/repository/
+    restart: always
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    environment:
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    networks:
+      - home
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_statement=all"]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${PG_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  home:
+    driver: bridge
+volumes:
+  pgdata:

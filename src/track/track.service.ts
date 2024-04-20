@@ -1,46 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { PrismaService } from 'src/repository/prisma.service';
+import { Track } from 'src/track/entities/track.entity';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { RepositoryService } from 'src/repository/repository.service';
-import { Track } from 'src/track/entities/track.entity';
-import { v4 } from 'uuid';
 
 @Injectable()
 export class TrackService {
-  constructor(private readonly repository: RepositoryService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createTrackDto: CreateTrackDto) {
-    const track = new Track({
-      ...createTrackDto,
-      id: v4(),
-      albumId: this.repository.getAlbumId(createTrackDto.albumId),
-      artistId: this.repository.getArtistId(createTrackDto.artistId),
-    });
-    this.repository.tracks.push(track);
-    return track;
+  async create(createTrackDto: CreateTrackDto) {
+    const track = await this.prisma.track.create({ data: createTrackDto });
+    return plainToInstance(Track, track);
   }
 
-  findAll() {
-    return this.repository.tracks;
+  async findAll() {
+    return plainToInstance(Track, await this.prisma.track.findMany());
   }
 
-  findOne(id: string) {
-    const record = this.repository.tracks.find((el) => el.id === id);
+  async findOne(id: string) {
+    const record = await this.prisma.track.findUnique({ where: { id } });
     if (!record) throw new NotFoundException(`This track doesn't exist`);
-    return record;
+    return plainToInstance(Track, record);
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    const record = this.findOne(id);
-    const updatedRecord = new Track({
-      ...record,
-      ...updateTrackDto,
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    await this.findOne(id);
+    const updatedRecord = await this.prisma.track.update({
+      where: { id },
+      data: updateTrackDto,
     });
-    return this.repository.updateEntity('tracks', id, updatedRecord);
+    return plainToInstance(Track, updatedRecord);
   }
 
-  remove(id: string) {
-    this.repository.removeElement('tracks', id);
-    this.repository.favorites.remove('tracks', id);
+  async remove(id: string) {
+    await this.findOne(id);
+    await this.prisma.track.delete({ where: { id } });
   }
 }

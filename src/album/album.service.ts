@@ -1,42 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Album } from 'src/album/entities/album.entity';
+import { PrismaService } from 'src/repository/prisma.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { RepositoryService } from 'src/repository/repository.service';
-import { Album } from 'src/album/entities/album.entity';
-import { v4 } from 'uuid';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AlbumService {
-  constructor(private readonly repository: RepositoryService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createAlbumDto: CreateAlbumDto) {
-    const album = new Album({ ...createAlbumDto, id: v4() });
-    this.repository.albums.push(album);
-    return album;
+  async create(createAlbumDto: CreateAlbumDto) {
+    const album = await this.prisma.album.create({ data: createAlbumDto });
+    return plainToInstance(Album, album);
   }
 
-  findAll() {
-    return this.repository.albums;
+  async findAll() {
+    return plainToInstance(Album, await this.prisma.album.findMany());
   }
 
-  findOne(id: string) {
-    const record = this.repository.albums.find((el) => el.id === id);
-    if (!record) throw new NotFoundException(`This album doesn't exist`);
-    return record;
+  async findOne(id: string) {
+    const album = await this.prisma.album.findUnique({ where: { id } });
+    if (!album) throw new NotFoundException(`This album doesn't exist`);
+    return plainToInstance(Album, album);
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const record = this.findOne(id);
-    const updatedRecord = new Album({
-      ...record,
-      ...updateAlbumDto,
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    await this.findOne(id);
+    const updatedRecord = await this.prisma.album.update({
+      where: { id },
+      data: updateAlbumDto,
     });
-    return this.repository.updateEntity('albums', id, updatedRecord);
+    return plainToInstance(Album, updatedRecord);
   }
 
-  remove(id: string) {
-    this.repository.removeElement('albums', id);
-    this.repository.favorites.remove('albums', id);
-    this.repository.clearAlbumReferences(id);
+  async remove(id: string) {
+    await this.findOne(id);
+    await this.prisma.album.delete({ where: { id } });
   }
 }

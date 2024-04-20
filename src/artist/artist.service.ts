@@ -1,42 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { Artist } from 'src/artist/entities/artist.entity';
+import { PrismaService } from 'src/repository/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { RepositoryService } from 'src/repository/repository.service';
-import { Artist } from 'src/artist/entities/artist.entity';
-import { v4 } from 'uuid';
 
 @Injectable()
 export class ArtistService {
-  constructor(private readonly repository: RepositoryService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createArtistDto: CreateArtistDto) {
-    const artist = new Artist({ ...createArtistDto, id: v4() });
-    this.repository.artists.push(artist);
-    return artist;
+  async create(createArtistDto: CreateArtistDto) {
+    const artist = await this.prisma.artist.create({ data: createArtistDto });
+    return plainToInstance(Artist, artist);
   }
 
-  findAll() {
-    return this.repository.artists;
+  async findAll() {
+    return plainToInstance(Artist, await this.prisma.artist.findMany());
   }
 
-  findOne(id: string) {
-    const record = this.repository.artists.find((el) => el.id === id);
+  async findOne(id: string) {
+    const record = await this.prisma.artist.findUnique({ where: { id } });
     if (!record) throw new NotFoundException(`This artist doesn't exist`);
-    return record;
+    return plainToInstance(Artist, record);
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
-    const record = this.findOne(id);
-    const updatedRecord = new Artist({
-      ...record,
-      ...updateArtistDto,
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
+    await this.findOne(id);
+    const updatedRecord = await this.prisma.artist.update({
+      where: { id },
+      data: updateArtistDto,
     });
-    return this.repository.updateEntity('artists', id, updatedRecord);
+    return plainToInstance(Artist, updatedRecord);
   }
 
-  remove(id: string) {
-    this.repository.removeElement('artists', id);
-    this.repository.favorites.remove('artists', id);
-    this.repository.clearArtistReferences(id);
+  async remove(id: string) {
+    await this.findOne(id);
+    await this.prisma.artist.delete({ where: { id } });
   }
 }
