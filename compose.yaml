@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   app:
     build:
@@ -8,18 +7,19 @@ services:
     ports:
       - ${PORT}:${PORT}
     restart: always
-    environment:
-      PORT: ${PORT}
-      DATABASE_URL: ${DATABASE_URL_DOCKER}
+    env_file:
+      - .env
     networks:
       - home
     depends_on:
       db:
         condition: service_healthy
     volumes:
+      - /app/node_modules
       - ./src:/app/src
+      - ./logs:/app/logs
   db:
-    build: ./src/repository/
+    build: ./src/prisma/
     restart: always
     ports:
       - ${PG_PORT}:${PG_PORT}
@@ -31,7 +31,8 @@ services:
       - home
     volumes:
       - pgdata:/var/lib/postgresql/data
-    command: ["postgres", "-c", "logging_collector=on", "-c", "log_statement=all"]
+    command:
+      ['postgres', '-c', 'logging_collector=on', '-c', 'log_statement=all']
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${PG_USER}']
       interval: 10s

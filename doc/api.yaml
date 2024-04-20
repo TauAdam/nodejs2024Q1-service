@@ -120,13 +120,13 @@ security:
   - bearerAuth: []
 
 paths:
-  /login:
+  /auth/login:
     post:
       tags:
         - Login
       security: []
       summary: Login
-      description: Logins a user and returns a JWT-token
+      description: Logins a user and returns Access token and Refresh token
       requestBody:
         required: true
         content:
@@ -152,12 +152,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  token:
+                  accessToken:
                     type: string
-                description: JWT Token
+                  refreshToken:
+                    type: string
+                description: JWT tokens
+        400:
+          description: Bad request (no login or password, or they are not a strings)
         403:
-          description: Incorrect login or password
-  /signup:
+          description: Authentication failed (no user with such login, password doesn't match actual one, etc.)
+  /auth/signup:
     post:
       tags:
         - Signup
@@ -186,12 +190,46 @@ paths:
                 - login
                 - password
       responses:
-        204:
+        201:
           description: Successful signup
         400:
-          description: Bad request
-        409:
-          description: Conflict. Login already exists
+          description: Bad request (no login or password, or they are not a strings)
+  /auth/refresh:
+    post:
+      tags:
+        - Refresh
+      summary: Returns new Access and Refresh tokens
+      description: Send refresh token in body to get new pair of Access token and Refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: example
+              properties:
+                refreshToken:
+                  type: string
+                  description: Refresh token
+              required:
+                - refreshToken
+      responses:
+        200:
+          description: Successful refresh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                description: JWT tokens
+        400:
+          description: Bad request (no refreshToken in body or it is not a string)
+        403:
+          description: Authentication failed (Refresh token is invalid or expired)
   /user:
     get:
       tags:

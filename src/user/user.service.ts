@@ -6,7 +6,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'src/user/entities/user.entity';
-import { PrismaService } from 'src/repository/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -27,6 +27,10 @@ export class UserService {
   }
   async findOne(id: string) {
     return plainToInstance(User, await this.getOne(id));
+  }
+  async findByLogin(login: string) {
+    const record = await this.prisma.user.findFirst({ where: { login } });
+    return record;
   }
 
   async update(id: string, { newPassword, oldPassword }: UpdateUserDto) {

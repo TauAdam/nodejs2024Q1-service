@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Artist } from 'src/artist/entities/artist.entity';
-import { PrismaService } from 'src/repository/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 

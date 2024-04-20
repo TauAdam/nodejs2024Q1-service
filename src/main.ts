@@ -1,20 +1,30 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
-import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
-import { ConfigService } from '@nestjs/config';
+import { EnvService } from 'src/env/env.service';
+import { HttpExceptionFilter } from 'src/http-exception-filter';
+import { LoggingService } from 'src/logging/logging.service';
+import { parse } from 'yaml';
+import { AppModule } from './app.module';
 
 const swaggerRoute = 'doc';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
 
-  const configService = app.get(ConfigService);
+  const configService = app.get(EnvService);
   const port = configService.get('PORT');
 
-  app.useGlobalPipes(new ValidationPipe());
+  const logger = app.get(LoggingService);
+  app.useLogger(logger);
+
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   const file = await readFile('doc/api.yaml', { encoding: 'utf-8' });
   const openApiDocument = parse(file);

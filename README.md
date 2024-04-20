@@ -1,11 +1,37 @@
 # Home Library Service
 
+## Overview
+This project is a REST service for a Home Library. Users can create, read, update, delete data about Artists, Tracks, and Albums, and add them to Favorites in their own Home Library. The service implements logging functionality, authentication and authorization with JWT (Access and Refresh tokens), and uses Docker for containerization. The data source for the application is a PostgreSQL database, and Prisma is used as the ORM.
+
+## Key Features
+
+### Authentication and Authorization:
+- User signup and login with JWT tokens
+- Access and refresh token management
+-  Secured resource access with tokens
+### Logging and Error Handling:
+- Detailed logging for events and errors
+- Informative error responses for API calls
+### Database and ORM:
+- PostgreSQL database for data persistence
+- Prisma ORM for efficient database interactions
+### Containerization:
+- Docker setup for multi-container application
+- Simple deployment and portability
+### OpenAPI Documentation:
+- Interactive API documentation at http://localhost:4000/doc/
+### Testing:
+- Comprehensive test suite for API endpoints and authentication
+### OpenApi & Swagger:
+- OpenAPI documentation for API endpoints
+
 ## Prerequisites
+- Git
+- Node.js (20 LTS version)
+- Docker
+## Getting Started
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
-
-## 1) Download the project
+#### 1) Clone the repository
 
 ```
 git clone {repository URL}
@@ -14,45 +40,31 @@ git clone {repository URL}
 cd nodejs2024Q1-service
 ```
 ```
-git checkout docker-database
+git checkout logging-auth
 ```
 
-## 2) Create .env file
+#### 2) Create .env file
 
-Create .env file in the root of the project and add variables from .env.example file.
-(You can copy .env.example file and rename it to .env)
+- Rename .env.example file to .env
 
-**Important: Set PG_USER=postgres in .env file.**
-
-## 3) Install dependencies
+#### 3) Install dependencies
 
 ```
 npm install
 ```
 
-## 4) Docker setup
-### Note: Make sure you have Docker installed on your machine and you copied .env file to the root of the project.
+#### 4) Set up Docker
 
 ```
 npm run compose:up
 ```
 
-## 5) Run tests
+## Using the API
 
-```
-npm run test
-```
-## 6) Scan vulnerabilities
+Access the OpenAPI documentation at http://localhost:4000/doc/ for detailed API usage and exploration.
+## Additional Notes
 
-```
-npm run docker:audit
-```
-
-## Using the application
-
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+The default port for the application is 4000.
 
 ## Testing
 
@@ -81,7 +93,11 @@ To run only specific test suite with authorization
 ```
 npm run test:auth -- <path to suite>
 ```
+## Scan vulnerabilities
 
+```
+npm run docker:audit
+```
 ### Auto-fix and format
 
 ```
